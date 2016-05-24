@@ -67,8 +67,6 @@ Step 2: Set the server where nuage-amp resides.
 ```
 [DEFAULT]
 hostname = <nuage-amp host ip>
-username = <OS networking service username>
-password = <OS networking service password>
 ```
 
 Step 3: Configure logging.

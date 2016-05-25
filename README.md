@@ -10,6 +10,20 @@ As an example, suppose a network administrator of the *ACME* enterprise has crea
 These subnets will be made available to the *ACME* tenant in OpenStack like this:
 ![OpenStack-Network-List][os-subnet-list]
 
+# Usage
+
+The `nuage-amp-sync` synchronizes networks between a Nuage Networks Enterprise and an OpenStack Tenant.
+For the example of Nuage Networks Enterprise `ACME`, it expects following OpenStack commands to be issued first:
+
+```
+# keystone tenant-create --name ACME
+# keystone user-role-add --user admin --tenant ACME --role admin
+# neutron nuage-netpartition-create ACME
+```
+
+This is sufficient for `nuage-amp-sync`  to start populating the ACME tenant with all networks as they are provisioned under the Nuage Networks ACME enterprise. It will use the admin user as configured in the `nuage-amp.conf` file.
+
+
 # Install Instructions
 
 The below instructions will install the nuage-amp tool on a RHEL or CentOS machine.
@@ -140,20 +154,6 @@ Step 7: Enable and start `nuage-amp-sync` through `systemctl`.
 # systemctl status nuage-amp-sync.service
 Active: active (running)
 ```
-
-# Usage
-
-The `nuage-amp-sync` synchronizes networks between a Nuage Networks Enterprise and an OpenStack Tenant.
-For the example of Nuage Networks Enterprise `ACME`, it expects following OpenStack commands to be issued first:
-
-```
-# keystone tenant-create --name ACME
-# keystone user-role-add --user admin --tenant ACME --role admin
-# neutron nuage-netpartition-create ACME
-```
-
-This is sufficient for the `nuage-amp-sync` script to start populating the ACME tenant with all networks as they are provisioned under the Nuage Networks ACME enterprise. It will use the admin user as configured in the `nuage-amp.conf` file.
-
 
 [nuage-subnet-list]: sample/Nuage-subnet-list.PNG
 [os-subnet-list]: sample/OS-subnet-list.PNG

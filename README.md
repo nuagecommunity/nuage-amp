@@ -2,7 +2,27 @@
 
 The goal of `nuage-amp-sync` is to provide an automatic synchronization between Nuage Networks domain topologies and OpenStack tenant networks. As such, an end-user can easily provision new virtual machines in networks that have been created by the network admin.
 
-Internally it monitors the creation and removal of subnets in a particular enterprise and ensures the coresponding networks and subnets are present in OpenStack. It covers subnets of L3 domains and DHCP-Managed L2 domains. It does not support Shared Subnets, FloatingIP Subnets, or other types of L2 domains.
+Internally it monitors the creation and removal of subnets in Nuage enterprises and ensures the coresponding networks and subnets are mapped in OpenStack. It covers subnets of L3 domains and DHCP-Managed L2 domains. It does not support Shared Subnets, FloatingIP Subnets, or other types of L2 domains.
+
+As an example, suppose a network administrator of the *ACME* enterprise has created the following topology in VSD Architect:
+![Nuage-Enterprise-Topology][nuage-subnet-list]
+
+These subnets will be made available to the *ACME* tenant in OpenStack like this:
+![OpenStack-Network-List][os-subnet-list]
+
+# Usage
+
+The `nuage-amp-sync` synchronizes networks between a Nuage Networks Enterprise and an OpenStack Tenant.
+For the example of Nuage Networks Enterprise `ACME`, it expects following OpenStack commands to be issued first:
+
+```
+# keystone tenant-create --name ACME
+# keystone user-role-add --user admin --tenant ACME --role admin
+# neutron nuage-netpartition-create ACME
+```
+
+This is sufficient for `nuage-amp-sync`  to start populating the ACME tenant with all networks as they are provisioned under the Nuage Networks ACME enterprise. It will use the admin user as configured in the `nuage-amp.conf` file.
+
 
 # Install Instructions
 
@@ -21,12 +41,14 @@ The below instructions will install the nuage-amp tool on a RHEL or CentOS machi
 
 - Icehouse
  - Ubuntu Cloud Archive Icehouse with 12.04.5 or 14.04.1
- - Red Hat OpenStack 5.0 
+ - Red Hat OSP 5.0 
 - Juno
  - Ubuntu Cloud Archive 14.04.1
- - Red Hat RDO 6.0 / OpenStack 6.0
+ - Red Hat RDO 6.0 / OSP 6.0
 - Kilo
- - Red Hat RDO 7.0 / OpenStack 7.0
+ - Red Hat RDO 7.0 / OSP 7.0
+- Liberty
+ - Red Hat RDO 7.0 / OSP 8.0
 
 ## Required Software Packages
 
@@ -51,7 +73,6 @@ Step 2: Clone the `nuage-amp` software from github, and run the `setup.py instal
 # git clone https://github.com/nuagecommunity/nuage-amp.git
 # cd nuage-amp
 # python setup.py install
-# yum install python-docopt.noarch
 ```
 
 # Configuration
@@ -79,8 +100,7 @@ maxsize = <maximum size of one logfile in Mega bytes>
 backups = <maximum number of logfiles>
 ```
 
-Step 4: Set the VSD server.
-Do not change username/password nor enterprise value.
+Step 4: Set the VSD server and configure a `csp` administrative user
 
 ```
 [vsd]
@@ -89,7 +109,7 @@ port = 8443
 username = csproot 
 password = csproot
 enterprise = csp
-version = v3_0
+version = v3_2
 ```
 
 Step 5: set the OpenStack credentials.
@@ -115,30 +135,28 @@ db_password = <neutron mysql password>
 db_name = <neutron DB name>
 ```
 
-Step 6: Enable and start `nuage-amp-sync` through `systemctl`.
+Step 6: Configure the format for subnet names under OpenStack
+You can also specify a comma-separated list of tenants that should not be included for synchronizion. Typically you would include the name of the default Nuage enterprise used for OpenStack-Managed networking.
+
+```
+[sync]
+l2_name_format = $d
+l3_name_format = $d ($z) \ $s
+excluded_tenants= Openstack_Org
+```
+
+Step 7: Enable and start `nuage-amp-sync` through `systemctl`.
 
 ```
 # systemctl daemon-reload
 # systemctl start nuage-amp-sync
+# systemctl enable nuage-amp-sync
 # systemctl status nuage-amp-sync.service
 Active: active (running)
 ```
 
-# Usage
-
-The `nuage-amp-sync` synchronizes networks between a Nuage Networks Enterprise and an OpenStack Tenant.
-For the example of Nuage Networks Enterprise `ACME`, it expects following OpenStack commands to be issued first:
-
-```
-# keystone tenant-create --name ACME
-# keystone user-role-add --user admin --tenant ACME --role admin
-# neutron nuage-netpartition-create ACME
-```
-
-This is sufficient for the `nuage-amp-sync` script to start populating the ACME tenant with all networks as they are provisioned under the Nuage Networks ACME enterprise. It will use the admin user as configured in the `nuage-amp.conf` file.
-
-
-
+[nuage-subnet-list]: sample/Nuage-subnet-list.PNG
+[os-subnet-list]: sample/OS-subnet-list.PNG
 
 
 

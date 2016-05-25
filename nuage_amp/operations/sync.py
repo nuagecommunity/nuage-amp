@@ -221,15 +221,13 @@ def get_current_subnet_mappings():
    con = mdb.connect(cfg.get('neutron','db_hostname'), cfg.get('neutron','db_username'), cfg.get('neutron','db_password'), cfg.get('neutron','db_name'))
    cur = con.cursor(mdb.cursors.DictCursor)
    if not cfg.has_option('openstack','version'):
-       cur.execute("SELECT * FROM subnet_l2dom_mapping")
+       cur.execute("SELECT * FROM nuage_subnet_l2dom_mapping")
    else:
-       if cfg.get('openstack','version').lower() == "juno":
-           cur.execute("SELECT * FROM nuage_subnet_l2dom_mapping")
-       elif cfg.get('openstack','version').lower() == "icehouse":
+       if cfg.get('openstack','version').lower() == "icehouse":
            cur.execute("SELECT * FROM subnet_l2dom_mapping")
        else:
-           cur.execute("SELECT * FROM subnet_l2dom_mapping")
-           
+           # juno and liberty
+           cur.execute("SELECT * FROM nuage_subnet_l2dom_mapping")
    rows = cur.fetchall()
    return rows
 

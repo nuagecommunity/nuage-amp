@@ -136,6 +136,7 @@ Step 7: Enable and start `nuage-amp-sync` through `systemctl`.
 ```
 # systemctl daemon-reload
 # systemctl start nuage-amp-sync
+# systemctl enable nuage-amp-sync
 # systemctl status nuage-amp-sync.service
 Active: active (running)
 ```

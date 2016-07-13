@@ -46,11 +46,11 @@ def main(args):
             logger.error(str(e))
             sys.exit(1)
 
-    if cfg.has_option('DEFAULT','loglevel'):
+    if cfg.has_option('logging','loglevel'):
         try:
-            setloglevel(cfg.get('DEFAULT','loglevel'))
+            setloglevel(cfg.get('logging','loglevel'))
         except Exception,e:
-            logger.error("Error setting logging level to %s" % cfg.get('DEFAULT','loglevel'))
+            logger.error("Error setting logging level to %s" % cfg.get('logging','loglevel'))
             logger.error(str(e))
 
     if args['sync']:

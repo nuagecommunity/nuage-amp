@@ -9,7 +9,7 @@ except ImportError:
 setup(
     name='nuage_amp',
     version='0.1.1',
-    packages=['nuage_amp','nuage_amp.utils','nuage_amp.operations'],
+    packages=['nuage_amp', 'nuage_amp.utils', 'nuage_amp.operations'],
     data_files=[('/etc/nuage-amp', ['config/nuage-amp.conf']),
                 ('/usr/bin', ['config/nuage-amp']),
                 ('/etc/init.d', ['config/nuage-amp-sync'])],
@@ -30,4 +30,3 @@ setup(
         'Programming Language :: Python :: 2.7',
     ),
 )
-

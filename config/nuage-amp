@@ -1,5 +1,5 @@
 #!/usr/bin/python
 import sys
-from nuage_amp.nuage_amp import main,getargs
+from nuage_amp.nuage_amp import main, getargs
 if __name__ == "__main__":
     sys.exit(main(getargs()))

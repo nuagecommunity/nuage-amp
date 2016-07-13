@@ -7,6 +7,7 @@ import ConfigParser
 import os
 from log import logger
 
+
 def readconfig(path):
     if not os.path.isfile(path):
         raise ValueError('Invalid config file: %s' % path)

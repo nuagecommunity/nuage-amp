@@ -3,7 +3,9 @@
 # @copyright: Alcatel-Lucent 2014
 # @version: 0.0.1
 
-import logging,sys,os
+import logging
+import sys
+import os
 
 LEVELS = {'debug': logging.DEBUG,
           'info': logging.INFO,
@@ -11,9 +13,10 @@ LEVELS = {'debug': logging.DEBUG,
           'error': logging.ERROR,
           'critical': logging.CRITICAL}
 
+
 def setlogpath(path, logconfig=None):
-    #if not os.path.exists(path):
-    #    raise ValueError('Invalid log file path: %s' % path) 
+    # if not os.path.exists(path):
+    #    raise ValueError('Invalid log file path: %s' % path)
     if not os.path.exists(os.path.dirname(path)):
         try:
             os.makedirs(os.path.dirname(path))
@@ -28,14 +31,14 @@ def setlogpath(path, logconfig=None):
         if logconfig.has_option('logging', 'rotate_logfiles'):
             enableRotate = logconfig.getboolean('logging', 'rotate_logfiles')
             if enableRotate:
-                maxsize = 0 # maxsize is in mega bytes.
+                maxsize = 0  # maxsize is in mega bytes.
                 backups = 0
                 if logconfig.has_option('logging', 'maxsize'):
                     maxsize = int(logconfig.get('logging', 'maxsize'))
                 if logconfig.has_option('logging', 'backups'):
                     backups = int(logconfig.get('logging', 'backups'))
-    
-                fileh = logging.handlers.RotatingFileHandler(path, 'a', maxBytes=maxsize*1000000, backupCount=backups)
+
+                fileh = logging.handlers.RotatingFileHandler(path, 'a', maxBytes=maxsize * 1000000, backupCount=backups)
 
     formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(name)s:%(message)s")
     fileh.setFormatter(formatter)
@@ -44,6 +47,7 @@ def setlogpath(path, logconfig=None):
         logger.removeHandler(hdlr)
     logger.addHandler(fileh)
     logger.propagate = False
+
 
 def setloglevel(log_level):
     parsed_log_level = LEVELS.get(log_level.lower(), logging.NOTSET)

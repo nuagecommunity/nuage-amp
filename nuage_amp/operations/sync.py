@@ -49,7 +49,7 @@ mask_dictionary = {
 
 
 def net_nm_sanitizer(net, nm):
-    if not net == None:
+    if net is not None:
         return net + mask_dictionary[nm]
     else:
         return "None"
@@ -120,7 +120,7 @@ def calcL3SubnetName(nc, vsd_subnet):
 def neutron_add_subnet(nc, vsd_subnet, tenant):
     neutron_creds = get_neutron_creds(cfg.get('openstack', 'admin_username'), cfg.get('openstack', 'admin_password'), tenant.name)
     neutron = neutronclient.Client(**neutron_creds)
-    if not vsd_subnet['parentType'] == "enterprise" and vsd_subnet['address'] == None and vsd_subnet['associatedSharedNetworkResourceID'] == None:
+    if not vsd_subnet['parentType'] == "enterprise" and vsd_subnet['address'] is None and vsd_subnet['associatedSharedNetworkResourceID'] is None:
         logger.debug("|- Ignoring subnet: (ID:%s). This is a public subnet without a pool assignment yet." % vsd_subnet['ID'])
         return None
     if vsd_subnet['parentType'] == "enterprise":
@@ -164,7 +164,7 @@ def neutron_add_subnet(nc, vsd_subnet, tenant):
                 }
             ]
         }
-    elif not vsd_subnet['associatedSharedNetworkResourceID'] == None:
+    elif not vsd_subnet['associatedSharedNetworkResourceID'] is None:
         body_subnet = {
             "subnets": [
                 {
@@ -273,7 +273,7 @@ def vsd_subnet_mapped(vsd_subnet, mappings):
 
 
 def check_adress_match(os_subnet, vsd_subnet):
-    if vsd_subnet['address'] == None and vsd_subnet['netmask'] == None:
+    if vsd_subnet['address'] is None and vsd_subnet['netmask'] is None:
         return True
     if vsd_subnet['parentType'] == "enterprise" and not vsd_subnet['DHCPManaged']:
         return True
@@ -431,7 +431,7 @@ def sync_subnets():
                     delete = False
                 else:
                     logger.info("OpenStack subnet(ID:%s) properties do not match the corresponding VSD Subnet(ID:%s)" % (os_subnet['id'], vsd_subnet['ID']))
-                if not vsd_subnet['parentType'] == "enterprise" and vsd_subnet['address'] == None and vsd_subnet['associatedSharedNetworkResourceID'] == None:
+                if not vsd_subnet['parentType'] == "enterprise" and vsd_subnet['address'] is None and vsd_subnet['associatedSharedNetworkResourceID'] is None:
                     delete = True
             if delete:
                 try:

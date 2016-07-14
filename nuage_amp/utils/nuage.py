@@ -131,7 +131,7 @@ class NuageResponse(object):
     def id(self, name=None):
         """
 
-        Returns the ID of the object in the response, optionally searches for the object with 
+        Returns the ID of the object in the response, optionally searches for the object with
 
         the specified name (returns first object with matching name).
 
@@ -207,7 +207,7 @@ class NuageConnection(object):
 
         @param url: The URL to GET, example: "enterprises"
 
-        @param filter: 
+        @param filter:
 
         @param filtertype:
 
@@ -219,7 +219,7 @@ class NuageConnection(object):
 
         @return: A NuageResponse object.
 
-        @raise NuageHTTPException: If there is an error in processing the request.  
+        @raise NuageHTTPException: If there is an error in processing the request.
 
         """
 
@@ -255,7 +255,7 @@ class NuageConnection(object):
 
         @return: A NuageResponse object.
 
-        @raise NuageHTTPException: If there is an error in processing the request.  
+        @raise NuageHTTPException: If there is an error in processing the request.
 
         """
 
@@ -330,7 +330,7 @@ class NuageConnection(object):
 
         This method will long poll the server for events, and call the supplied callback
 
-        with the NuageResponse and any args/kwargs provided. If no callback is given, it 
+        with the NuageResponse and any args/kwargs provided. If no callback is given, it
 
         will print the events. This method will not miss events event if another is received while
 
@@ -388,7 +388,7 @@ class NuageConnection(object):
     def _do_http_request(self, method, url, body=None, headers=None):
         """
 
-        Wrapper for HTTP requests. Builds the authentication headers. 
+        Wrapper for HTTP requests. Builds the authentication headers.
 
         Currently not reliable, that must be handled by the caller.
 

@@ -43,7 +43,7 @@ def main(args):
 
     if args['--log-file']:
         try:
-            setlogpath(args['--log-file'])
+            setlogpath(args['--log-file'], logconfig=cfg)
         except Exception, e:
             logger.error("Error setting log location: %s" % args['--log-file'])
             logger.error(str(e))

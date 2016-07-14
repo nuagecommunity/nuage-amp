@@ -4,6 +4,7 @@
 # @version: 0.0.1
 
 import logging
+import logging.handlers
 import sys
 import os
 
@@ -15,8 +16,6 @@ LEVELS = {'debug': logging.DEBUG,
 
 
 def setlogpath(path, logconfig=None):
-    # if not os.path.exists(path):
-    #    raise ValueError('Invalid log file path: %s' % path)
     if not os.path.exists(os.path.dirname(path)):
         try:
             os.makedirs(os.path.dirname(path))
@@ -24,20 +23,18 @@ def setlogpath(path, logconfig=None):
             if exception.errno != errno.EEXIST:
                 raise
 
-    # Santander branch: moved logging configuration in 'logging' section.
     fileh = logging.FileHandler(path, 'a')
     if logconfig and logconfig.has_section('logging'):
-        # Exceptions due to invalid values will be raised to the caller straight.
         if logconfig.has_option('logging', 'rotate_logfiles'):
             enableRotate = logconfig.getboolean('logging', 'rotate_logfiles')
             if enableRotate:
-                maxsize = 0  # maxsize is in mega bytes.
-                backups = 0
+                # if not set, use default of 10 megabytes and 5 backups
+                maxsize = 10  # maxsize is in mega bytes.
+                backups = 5
                 if logconfig.has_option('logging', 'maxsize'):
                     maxsize = int(logconfig.get('logging', 'maxsize'))
                 if logconfig.has_option('logging', 'backups'):
                     backups = int(logconfig.get('logging', 'backups'))
-
                 fileh = logging.handlers.RotatingFileHandler(path, 'a', maxBytes=maxsize * 1000000, backupCount=backups)
 
     formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(name)s:%(message)s")

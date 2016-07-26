@@ -14,15 +14,18 @@ from nuage_amp.utils.config import cfg
 
 def audit_vports():
     logger.info("Auditing vPorts")
-    nc = NuageConnection(cfg.get('vsd', 'hostname'), enterprise=cfg.get('vsd', 'enterprise'), username=cfg.get('vsd', 'username'), password=cfg.get('vsd', 'password'), version=cfg.get('vsd', 'version'), port=cfg.get('vsd', 'port'))
+    nc = NuageConnection(cfg.get('vsd', 'hostname'), enterprise=cfg.get('vsd', 'enterprise'),
+                         username=cfg.get('vsd', 'username'), password=cfg.get('vsd', 'password'),
+                         version=cfg.get('vsd', 'version'), port=cfg.get('vsd', 'port'))
     try:
         dead_vms = nc.get("vms", filtertext="hypervisorIP == \"FFFFFF\"").obj()
+        for vm in dead_vms:
+            logger.info("Deleting orphaned VM with ID: %s" % vm['ID'])
+            try:
+                nc.delete("vms/%s" % vm['ID'])
+            except:
+                logger.error("Error deleting orphaned VM with ID: %s" % vm['ID'])
     except:
         logger.error("Error getting orphaned VMs")
-    for vm in dead_vms:
-        logger.info("Deleting orphaned VM with ID: %s" % vm['ID'])
-        try:
-            nc.delete("vms/%s" % vm['ID'])
-        except:
-            logger.error("Error deleting orhpaned VM with ID: %s" % vm['ID'])
+
     logger.info("Finished Auditing vPorts")

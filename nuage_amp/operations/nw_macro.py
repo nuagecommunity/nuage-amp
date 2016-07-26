@@ -15,7 +15,9 @@ import socket
 
 def create(url, enterprise_name):
     logger.info("Creating/updating Network Macro from url: %s" % url)
-    nc = NuageConnection(cfg.get('vsd', 'hostname'), enterprise=cfg.get('vsd', 'enterprise'), username=cfg.get('vsd', 'username'), password=cfg.get('vsd', 'password'), version=cfg.get('vsd', 'version'), port=cfg.get('vsd', 'port'))
+    nc = NuageConnection(cfg.get('vsd', 'hostname'), enterprise=cfg.get('vsd', 'enterprise'),
+                         username=cfg.get('vsd', 'username'), password=cfg.get('vsd', 'password'),
+                         version=cfg.get('vsd', 'version'), port=cfg.get('vsd', 'port'))
     try:
         ip = socket.gethostbyname(url)
     except:
@@ -30,7 +32,8 @@ def create(url, enterprise_name):
         logger.error("No enterprise found with name %s" % enterprise_name)
         return 1
     try:
-        macro = nc.get("enterprises/%s/enterprisenetworks" % enterprise['ID'], filtertext="name == \"%s\"" % url.replace(".", "-")).obj()
+        macro = nc.get("enterprises/%s/enterprisenetworks" % enterprise['ID'],
+                       filtertext="name == \"%s\"" % url.replace(".", "-")).obj()
     except:
         logger.error("Error getting existing macros from enterprise %s" % enterprise_name)
         return 1
@@ -49,7 +52,8 @@ def create(url, enterprise_name):
             return 1
     else:
         if not macro[0]['address'] == ip:
-            logger.info("Network Macro for %s does exists, but address is not correct.(current:%s | new:%s)" % (url, macro[0]['address'], ip))
+            logger.info("Network Macro for %s does exists, but address is not correct.(current:%s | new:%s)" % (
+            url, macro[0]['address'], ip))
             try:
                 nc.put("enterprisenetworks/%s" % macro[0]['ID'],
                        {"address": ip,
@@ -66,7 +70,9 @@ def create(url, enterprise_name):
 
 def delete(url, enterprise_name):
     logger.info("Deleting Network Macro with url: %s" % url)
-    nc = NuageConnection(cfg.get('vsd', 'hostname'), enterprise=cfg.get('vsd', 'enterprise'), username=cfg.get('vsd', 'username'), password=cfg.get('vsd', 'password'), version="v3_0", port=cfg.get('vsd', 'port'))
+    nc = NuageConnection(cfg.get('vsd', 'hostname'), enterprise=cfg.get('vsd', 'enterprise'),
+                         username=cfg.get('vsd', 'username'), password=cfg.get('vsd', 'password'), version="v3_0",
+                         port=cfg.get('vsd', 'port'))
     try:
         enterprise = nc.get("enterprises", filtertext="name == \"%s\"" % enterprise_name).obj()[0]
     except:
@@ -76,7 +82,8 @@ def delete(url, enterprise_name):
         logger.error("No enterprise found with name %s" % enterprise_name)
         return 1
     try:
-        macro = nc.get("enterprises/%s/enterprisenetworks" % enterprise['ID'], filtertext="name == \"%s\"" % url.replace(".", "-")).obj()
+        macro = nc.get("enterprises/%s/enterprisenetworks" % enterprise['ID'],
+                       filtertext="name == \"%s\"" % url.replace(".", "-")).obj()
     except:
         logger.error("Error getting existing macros %s" % enterprise_name)
         return 1

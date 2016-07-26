@@ -158,6 +158,7 @@ class NuageConnection(object):
         # Convert it to a JSON string if required.
         if type(body) != str:
             body = dumps(body)
+
         return self._do_http_request("POST", url, body, headers=headers)
 
     def put(self, url, body, user=None):
@@ -175,6 +176,7 @@ class NuageConnection(object):
         # Convert it to a JSON string if required.
         if type(body) != str:
             body = dumps(body)
+
         return self._do_http_request("PUT", url, body, headers=headers)
 
     def delete(self, url, user=None):
@@ -188,6 +190,7 @@ class NuageConnection(object):
         """
         headers = {}
         if user: headers['X-Nuage-ProxyUser'] = user
+
         return self._do_http_request("DELETE", url, headers=headers)
 
     def process_events(self, callback=None, *args, **kwargs):
@@ -221,6 +224,7 @@ class NuageConnection(object):
         print "Called with args:"
         for arg in args: print arg
         for kw in kwargs: print kw
+
         print nuage_response
 
     def _do_http_request(self, method, url, body=None, headers=None):
@@ -238,6 +242,7 @@ class NuageConnection(object):
         response = conn.getresponse()
         result = NuageResponse(response)
         conn.close()
+
         return result
 
     def _get_api_key(self):

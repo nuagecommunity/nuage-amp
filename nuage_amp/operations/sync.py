@@ -2,14 +2,11 @@
 # encoding: utf-8
 
 # Created on 2014-11-10
-#
+# 
 # @author: Philippe Jeurissen
 # @copyright: Alcatel-Lucent 2015
 # @version: 0.0.6
 
-import sys
-import re
-import time
 from nuage_amp.utils.nuage import NuageConnection, NuageHTTPError, NuageResponse
 import keystoneclient.v2_0.client as ksclient
 from neutronclient.v2_0 import client as neutronclient
@@ -75,17 +72,17 @@ def get_neutron_creds(user, pw, tenant):
 
 def get_enterprise(nc, resource_name):
     enterprise = nc.get("enterprises", filtertext="name == \"%s\"" % resource_name).obj()[0]
-    return(enterprise)
+    return enterprise
 
 
 def get_enterprise_by_id(nc, resource_id):
     enterprise = nc.get("enterprises/%s" % resource_id).obj()[0]
-    return(enterprise)
+    return enterprise
 
 
 def get_sharednwresource_by_id(nc, resource_id):
     resource = nc.get("sharednetworkresources/%s" % resource_id).obj()[0]
-    return(resource)
+    return resource
 
 
 def calcL2SubnetName(nc, l2domain):
@@ -118,10 +115,13 @@ def calcL3SubnetName(nc, vsd_subnet):
 
 
 def neutron_add_subnet(nc, vsd_subnet, tenant):
-    neutron_creds = get_neutron_creds(cfg.get('openstack', 'admin_username'), cfg.get('openstack', 'admin_password'), tenant.name)
+    neutron_creds = get_neutron_creds(cfg.get('openstack', 'admin_username'), cfg.get('openstack', 'admin_password'),
+                                      tenant.name)
     neutron = neutronclient.Client(**neutron_creds)
-    if not vsd_subnet['parentType'] == "enterprise" and vsd_subnet['address'] is None and vsd_subnet['associatedSharedNetworkResourceID'] is None:
-        logger.debug("|- Ignoring subnet: (ID:%s). This is a public subnet without a pool assignment yet." % vsd_subnet['ID'])
+    if not vsd_subnet['parentType'] == "enterprise" and vsd_subnet['address'] is None and vsd_subnet[
+        'associatedSharedNetworkResourceID'] is None:
+        logger.debug(
+            "|- Ignoring subnet: (ID:%s). This is a public subnet without a pool assignment yet." % vsd_subnet['ID'])
         return None
     if vsd_subnet['parentType'] == "enterprise":
         net_name = calcL2SubnetName(nc, vsd_subnet)
@@ -129,19 +129,17 @@ def neutron_add_subnet(nc, vsd_subnet, tenant):
         net_name = calcL3SubnetName(nc, vsd_subnet)
     try:
         logger.debug("Checking if openstack network %s already exists" % net_name)
-        network = neutron.list_networks(name=net_name)['networks']
+        netw = neutron.list_networks(name=net_name)['networks']
     except Exception, e:
         logger.error("|- ERROR checking if openstack network %s exists" % net_name)
         logger.error(repr(e))
-    if network:
-        netw = network
     else:
         body_nw = {
             "network":
-            {
-                "name": net_name,
-                "admin_state_up": True
-            }
+                {
+                    "name": net_name,
+                    "admin_state_up": True
+                }
         }
         try:
             netw = neutron.create_network(body=body_nw)
@@ -209,7 +207,7 @@ def neutron_add_subnet(nc, vsd_subnet, tenant):
         }
     try:
         sub = neutron.create_subnet(body=body_subnet)
-    except:
+    except Exception, e:
         logger.error("|- ERROR creating subnet: (ID:%s)" % vsd_subnet['ID'])
         logger.error(repr(e))
         try:
@@ -230,7 +228,8 @@ def get_all_netpartitions(neutron):
 
 
 def get_current_subnet_mappings():
-    con = mdb.connect(cfg.get('neutron', 'db_hostname'), cfg.get('neutron', 'db_username'), cfg.get('neutron', 'db_password'), cfg.get('neutron', 'db_name'))
+    con = mdb.connect(cfg.get('neutron', 'db_hostname'), cfg.get('neutron', 'db_username'),
+                      cfg.get('neutron', 'db_password'), cfg.get('neutron', 'db_name'))
     cur = con.cursor(mdb.cursors.DictCursor)
     if not cfg.has_option('openstack', 'version'):
         cur.execute("SELECT * FROM nuage_subnet_l2dom_mapping")
@@ -294,7 +293,8 @@ def check_name_match(nc, os_subnet, vsd_subnet):
 
 
 def cleanup_os_networks():
-    neutron_creds = get_neutron_creds(cfg.get('openstack', 'admin_username'), cfg.get('openstack', 'admin_password'), "admin")
+    neutron_creds = get_neutron_creds(cfg.get('openstack', 'admin_username'), cfg.get('openstack', 'admin_password'),
+                                      "admin")
     neutron = neutronclient.Client(**neutron_creds)
     try:
         networks = neutron.list_networks()['networks']
@@ -303,6 +303,7 @@ def cleanup_os_networks():
         logger.error(repr(e))
         return 1
     for nw in networks:
+        # TODO: vsd_subnet_exists() is called with only 1 parameter, fix!
         if not is_excluded_keystone_tenant_id(nw['tenant_id']) and not nw['subnets'] and not vsd_subnet_exists(nw):
             try:
                 logger.info("Found Network(ID: %s) without attached subnet, deleting" % nw['id'])
@@ -314,7 +315,9 @@ def cleanup_os_networks():
 
 
 def vsd_subnet_exists(os_nw, mapping):
-    nc = NuageConnection(cfg.get('vsd', 'hostname'), enterprise=cfg.get('vsd', 'enterprise'), username=cfg.get('vsd', 'username'), password=cfg.get('vsd', 'password'), version=cfg.get('vsd', 'version'), port=cfg.get('vsd', 'port'))
+    nc = NuageConnection(cfg.get('vsd', 'hostname'), enterprise=cfg.get('vsd', 'enterprise'),
+                         username=cfg.get('vsd', 'username'), password=cfg.get('vsd', 'password'),
+                         version=cfg.get('vsd', 'version'), port=cfg.get('vsd', 'port'))
     logger.debug("Checking if Openstack network(%s,%s) exists in the VSD" % (os_nw['id'], os_nw['name']))
     try:
         vsd_subnet = nc.get("subnets/%s" % mapping["nuage_subnet_id"]).obj()[0]
@@ -351,23 +354,24 @@ def is_excluded_keystone_tenant_id(tenant_id):
         excluded_tenants = cfg.get('sync', 'excluded_tenants').split(',')
         try:
             tenant = get_tenant_with_id(tenant_id)
+            if tenant.name in excluded_tenants:
+                return True
+            elif cfg.has_option('openstack', 'default_net_partition'):
+                if cfg.get('openstack', 'default_net_partition') == tenant.name:
+                    return True
+            else:
+                return False
         except Exception, e:
             logger.error("|- ERROR getting keystone tenant with id: %s" % tenant_id)
             logger.error(repr(e))
-        if tenant.name in excluded_tenants:
-            return True
-        elif cfg.has_option('openstack', 'default_net_partition'):
-            if cfg.get('openstack', 'default_net_partition') == tenant.name:
-                return True
-        else:
-            return False
     except Exception, e:
         logger.error("|- ERROR checking if tenant is excluded")
         logger.error(repr(e))
 
 
 def is_excluded_netpartition_id(netpartition_id):
-    neutron_creds = get_neutron_creds(cfg.get('openstack', 'admin_username'), cfg.get('openstack', 'admin_password'), "admin")
+    neutron_creds = get_neutron_creds(cfg.get('openstack', 'admin_username'), cfg.get('openstack', 'admin_password'),
+                                      "admin")
     neutron = neutronclient.Client(**neutron_creds)
     try:
         if not cfg.has_option('sync', 'excluded_tenants'):
@@ -393,9 +397,12 @@ def is_excluded_netpartition_id(netpartition_id):
 def sync_subnets():
     try:
         logger.info("Starting Subnet Synchronizing")
-        neutron_creds = get_neutron_creds(cfg.get('openstack', 'admin_username'), cfg.get('openstack', 'admin_password'), "admin")
+        neutron_creds = get_neutron_creds(cfg.get('openstack', 'admin_username'),
+                                          cfg.get('openstack', 'admin_password'), "admin")
         neutron = neutronclient.Client(**neutron_creds)
-        nc = NuageConnection(cfg.get('vsd', 'hostname'), enterprise=cfg.get('vsd', 'enterprise'), username=cfg.get('vsd', 'username'), password=cfg.get('vsd', 'password'), version=cfg.get('vsd', 'version'), port=cfg.get('vsd', 'port'))
+        nc = NuageConnection(cfg.get('vsd', 'hostname'), enterprise=cfg.get('vsd', 'enterprise'),
+                             username=cfg.get('vsd', 'username'), password=cfg.get('vsd', 'password'),
+                             version=cfg.get('vsd', 'version'), port=cfg.get('vsd', 'port'))
         try:
             subnet_mappings = get_current_subnet_mappings()
         except Exception, e:
@@ -413,7 +420,9 @@ def sync_subnets():
         # First: Check if existing subnets are still in the VSD and remove them in OpenStack if not present in the VSD
         for mapping in subnet_mappings:
             if is_excluded_netpartition_id(mapping['net_partition_id']):
-                logger.debug("|- Ignoring subnet: (ID:%s) because it is in the default net partition or is in the list of excluded tenants" % mapping['subnet_id'])
+                logger.debug(
+                    "|- Ignoring subnet: (ID:%s) because it is in the default net partition or is in the list of excluded tenants" %
+                    mapping['subnet_id'])
                 continue
             try:
                 os_subnet = neutron.list_subnets(id=mapping['subnet_id'])['subnets'][0]
@@ -427,11 +436,16 @@ def sync_subnets():
                 logger.error(repr(e))
             delete = True
             if vsd_subnet:
-                if vsd_subnet['ID'] == mapping["nuage_subnet_id"] and check_adress_match(os_subnet, vsd_subnet) and check_name_match(nc, os_subnet, vsd_subnet):
+                if vsd_subnet['ID'] == mapping["nuage_subnet_id"] and check_adress_match(os_subnet,
+                                                                                         vsd_subnet) and check_name_match(
+                    nc, os_subnet, vsd_subnet):
                     delete = False
                 else:
-                    logger.info("OpenStack subnet(ID:%s) properties do not match the corresponding VSD Subnet(ID:%s)" % (os_subnet['id'], vsd_subnet['ID']))
-                if not vsd_subnet['parentType'] == "enterprise" and vsd_subnet['address'] is None and vsd_subnet['associatedSharedNetworkResourceID'] is None:
+                    logger.info(
+                        "OpenStack subnet(ID:%s) properties do not match the corresponding VSD Subnet(ID:%s)" % (
+                            os_subnet['id'], vsd_subnet['ID']))
+                if not vsd_subnet['parentType'] == "enterprise" and vsd_subnet['address'] is None and vsd_subnet[
+                    'associatedSharedNetworkResourceID'] is None:
                     delete = True
             if delete:
                 try:
@@ -474,10 +488,22 @@ def sync_subnets():
                     if not vsd_subnet_mapped(subnet, subnet_mappings):
                         # Add subnet to Neutron
                         try:
-                            logger.info("|- Adding L3 subnet: (%s: %s - ID:%s) " % (subnet['name'], net_nm_sanitizer(subnet['address'], subnet['netmask']), subnet['ID']))
+                            logger.info(
+                                "|- Adding L3 subnet: ([%s: %s] %s: %s - ID:%s) " % (tenant.name, domain['name'],
+                                                                                     subnet['name'],
+                                                                                     net_nm_sanitizer(
+                                                                                         subnet['address'],
+                                                                                         subnet['netmask']),
+                                                                                     subnet['ID']))
                             neutron_add_subnet(nc, subnet, tenant)
                         except Exception, e:
-                            logger.error("|- ERROR adding L3 subnet: (%s: %s - ID:%s) " % (subnet['name'], net_nm_sanitizer(subnet['address'], subnet['netmask']), subnet['ID']))
+                            logger.error(
+                                "|- ERROR adding L3 subnet: ([%s: %s] %s: %s - ID:%s) " % (tenant.name, domain['name'],
+                                                                                           subnet['name'],
+                                                                                           net_nm_sanitizer(
+                                                                                               subnet['address'],
+                                                                                               subnet['netmask']),
+                                                                                           subnet['ID']))
                             logger.error(repr(e))
 
             l2domains = nc.get("enterprises/%s/l2domains" % enterprise["ID"]).obj()
@@ -485,10 +511,21 @@ def sync_subnets():
                 if not vsd_subnet_mapped(l2domain, subnet_mappings):
                     # Add subnet to Neutron
                     try:
-                        logger.info("|- Adding L2 subnet: (%s: %s - ID:%s) " % (l2domain['name'], net_nm_sanitizer(l2domain['address'], l2domain['netmask']), l2domain['ID']))
+                        logger.info("|- Adding L2 subnet: ([%s: %s] %s: %s - ID:%s) " % (tenant.name, domain['name'],
+                                                                                         l2domain['name'],
+                                                                                         net_nm_sanitizer(
+                                                                                             l2domain['address'],
+                                                                                             l2domain['netmask']),
+                                                                                         l2domain['ID']))
                         neutron_add_subnet(nc, l2domain, tenant)
                     except Exception, e:
-                        logger.error("|- ERROR adding L2 subnet: (%s: %s - ID:%s) " % (l2domain['name'], net_nm_sanitizer(l2domain['address'], l2domain['netmask']), l2domain['ID']))
+                        logger.error(
+                            "|- ERROR adding L2 subnet: ([%s: %s] %s: %s - ID:%s) " % (tenant.name, domain['name'],
+                                                                                       l2domain['name'],
+                                                                                       net_nm_sanitizer(
+                                                                                           l2domain['address'],
+                                                                                           l2domain['netmask']),
+                                                                                       l2domain['ID']))
                         logger.error(repr(e))
 
         logger.info("Subnet Synchronization Completed")

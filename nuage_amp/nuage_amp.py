@@ -29,6 +29,7 @@ Tenant Operations:
 from utils.config import cfg, readconfig
 from utils.log import logger, setlogpath, setloglevel
 from docopt import docopt
+from operations import *
 import time
 import sys
 

@@ -1,4 +1,4 @@
-# nuage-amp [![Build Status](https://travis-ci.org/EBPI/nuage-amp.svg?branch=master)](https://travis-ci.org/EBPI/nuage-amp) [![Code Issues](https://www.quantifiedcode.com/api/v1/project/f31c72bbf1ad4cc99b02e38abbe021db/badge.svg)](https://www.quantifiedcode.com/app/project/f31c72bbf1ad4cc99b02e38abbe021db)
+# nuage-amp
 
 The goal of `nuage-amp-sync` is to provide an automatic synchronization between Nuage Networks domain topologies and OpenStack tenant networks. As such, an end-user can easily provision new virtual machines in networks that have been created by the network admin.
 

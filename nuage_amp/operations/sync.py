@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-"""
-@author: Philippe Jeurissen
-@copyright: Alcatel-Lucent 2015
-@version: 0.0.6
-"""
+# Created on 2014-11-10
+# 
+# @author: Philippe Jeurissen
+# @copyright: Alcatel-Lucent 2015
+# @version: 0.0.6
 
 from nuage_amp.utils.nuage import NuageConnection, NuageHTTPError, NuageResponse
 import keystoneclient.v2_0.client as ksclient
@@ -53,12 +53,21 @@ def net_nm_sanitizer(net, nm):
 
 
 def get_keystone_creds():
-    return {'username': cfg.get('openstack', 'admin_username'), 'password': cfg.get('openstack', 'admin_password'),
-            'auth_url': cfg.get('openstack', 'auth_url'), 'tenant_name': "admin"}
+    d = {}
+    d['username'] = cfg.get('openstack', 'admin_username')
+    d['password'] = cfg.get('openstack', 'admin_password')
+    d['auth_url'] = cfg.get('openstack', 'auth_url')
+    d['tenant_name'] = "admin"
+    return d
 
 
 def get_neutron_creds(user, pw, tenant):
-    return {'username': user, 'password': pw, 'auth_url': cfg.get('openstack', 'auth_url'), 'tenant_name': tenant}
+    d = {}
+    d['username'] = user
+    d['password'] = pw
+    d['auth_url'] = cfg.get('openstack', 'auth_url')
+    d['tenant_name'] = tenant
+    return d
 
 
 def get_enterprise(nc, resource_name):
@@ -110,7 +119,7 @@ def neutron_add_subnet(nc, vsd_subnet, tenant):
                                       tenant.name)
     neutron = neutronclient.Client(**neutron_creds)
     if not vsd_subnet['parentType'] == "enterprise" and vsd_subnet['address'] is None and vsd_subnet[
-            'associatedSharedNetworkResourceID'] is None:
+        'associatedSharedNetworkResourceID'] is None:
         logger.debug(
             "|- Ignoring subnet: (ID:%s). This is a public subnet without a pool assignment yet." % vsd_subnet['ID'])
         return None
@@ -427,15 +436,16 @@ def sync_subnets():
                 logger.error(repr(e))
             delete = True
             if vsd_subnet:
-                if vsd_subnet['ID'] == mapping["nuage_subnet_id"] and check_adress_match(os_subnet, vsd_subnet) and check_name_match(
-                        nc, os_subnet, vsd_subnet):
+                if vsd_subnet['ID'] == mapping["nuage_subnet_id"] and check_adress_match(os_subnet,
+                                                                                         vsd_subnet) and check_name_match(
+                    nc, os_subnet, vsd_subnet):
                     delete = False
                 else:
                     logger.info(
                         "OpenStack subnet(ID:%s) properties do not match the corresponding VSD Subnet(ID:%s)" % (
                             os_subnet['id'], vsd_subnet['ID']))
                 if not vsd_subnet['parentType'] == "enterprise" and vsd_subnet['address'] is None and vsd_subnet[
-                        'associatedSharedNetworkResourceID'] is None:
+                    'associatedSharedNetworkResourceID'] is None:
                     delete = True
             if delete:
                 try:

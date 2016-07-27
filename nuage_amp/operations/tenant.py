@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-"""
-@author: Philippe Jeurissen
-@copyright: Alcatel-Lucent 2015
-@version: 0.0.1
-"""
+# Created on 2015-03-06
+#
+# @author: Philippe Jeurissen
+# @copyright: Alcatel-Lucent 2015
+# @version: 0.0.1
 
-from time import sleep
 from nuage_amp.utils.log import logger
 from nuage_amp.utils.nuage import NuageConnection, NuageHTTPError, NuageResponse
 from nuage_amp.utils.config import cfg
@@ -18,18 +17,32 @@ from sync import sync_subnets
 
 
 def get_admin_nova_creds(tenant_name):
-    return {'version': "2", 'username': cfg.get('openstack', 'admin_username'),
-            'api_key': cfg.get('openstack', 'admin_password'), 'auth_url': cfg.get('openstack', 'auth_url'),
-            'project_id': tenant_name, 'service_type': "compute"}
+    d = {}
+    d['version'] = "2"
+    d['username'] = cfg.get('openstack', 'admin_username')
+    d['api_key'] = cfg.get('openstack', 'admin_password')
+    d['auth_url'] = cfg.get('openstack', 'auth_url')
+    d['project_id'] = tenant_name
+    d['service_type'] = "compute"
+    return d
 
 
 def get_keystone_creds():
-    return {'username': cfg.get('openstack', 'admin_username'), 'password': cfg.get('openstack', 'admin_password'),
-            'auth_url': cfg.get('openstack', 'auth_url'), 'tenant_name': "admin"}
+    d = {}
+    d['username'] = cfg.get('openstack', 'admin_username')
+    d['password'] = cfg.get('openstack', 'admin_password')
+    d['auth_url'] = cfg.get('openstack', 'auth_url')
+    d['tenant_name'] = "admin"
+    return d
 
 
 def get_neutron_creds(user, pw, tenant):
-    return {'username': user, 'password': pw, 'auth_url': cfg.get('openstack', 'auth_url'), 'tenant_name': tenant}
+    d = {}
+    d['username'] = user
+    d['password'] = pw
+    d['auth_url'] = cfg.get('openstack', 'auth_url')
+    d['tenant_name'] = tenant
+    return d
 
 
 def keystone_tenant_exists(tenant_name):
@@ -45,8 +58,7 @@ def keystone_tenant_exists(tenant_name):
 
 
 def netpartition_exists(tenant_name):
-    neutron_creds = get_neutron_creds(cfg.get('openstack', 'admin_username'), cfg.get('openstack', 'admin_password'),
-                                      "admin")
+    neutron_creds = get_neutron_creds(cfg.get('openstack', 'admin_username'), cfg.get('openstack', 'admin_password'), "admin")
     neutron = neutronclient.Client(**neutron_creds)
     try:
         if neutron.list_net_partitions(name=tenant_name)['net_partitions'][0]:
@@ -73,9 +85,7 @@ def delete_vms_in_tenant(tenant_name):
 
 def delete_vsdobjects_in_tenant(tenant_name):
     logger.info("Deleting all VSD objects for tenant: %s" % tenant_name)
-    nc = NuageConnection(cfg.get('vsd', 'hostname'), enterprise=cfg.get('vsd', 'enterprise'),
-                         username=cfg.get('vsd', 'username'), password=cfg.get('vsd', 'password'),
-                         version=cfg.get('vsd', 'version'), port=cfg.get('vsd', 'port'))
+    nc = NuageConnection(cfg.get('vsd', 'hostname'), enterprise=cfg.get('vsd', 'enterprise'), username=cfg.get('vsd', 'username'), password=cfg.get('vsd', 'password'), version=cfg.get('vsd', 'version'), port=cfg.get('vsd', 'port'))
     enterprise = nc.get("enterprises", filtertext="name == \"%s\"" % tenant_name).obj()[0]
     # Get and delete all the active domains in the enterprise
     try:
@@ -89,8 +99,7 @@ def delete_vsdobjects_in_tenant(tenant_name):
                 if vport["type"] == "BRIDGE":
                     logger.info("VSD - Deleting bridgeport")
                     try:
-                        nc.delete(
-                            "bridgeinterfaces/%s" % (nc.get("vports/%s/bridgeinterfaces" % vport["ID"]).obj()[0]["ID"]))
+                        nc.delete("bridgeinterfaces/%s" % (nc.get("vports/%s/bridgeinterfaces" % vport["ID"]).obj()[0]["ID"]))
                     except Exception, e:
                         logger.info("VSD - no Bridgeinterface found")
                         logger.error(repr(e))
@@ -101,21 +110,19 @@ def delete_vsdobjects_in_tenant(tenant_name):
                         nc.delete("hostinterfaces/%s" % hostport[0]["ID"])
                     except Exception, e:
                         logger.info("VSD - no host interface found")
-                        logger.error(repr(e))
-                sleep(2)
+                time.sleep(2)
                 alarms = nc.get("vports/%s/alarms" % vport["ID"]).obj()
                 for alarm in alarms:
                     try:
                         nc.delete("alarms/%s" % alarm["ID"])
                     except Exception, e:
                         logger.info("VSD - while deleting alarm")
-                        logger.error(repr(e))
                 nc.delete("vports/%s" % vport["ID"])
             nc.delete("domains/%s" % domain["ID"])
     except Exception, e:
+        result = 1
         logger.error("VSD - while deleting domains")
         logger.error(repr(e))
-        return 1
 
     # Get and delete all the active l2domains in the enterprise
     try:
@@ -129,8 +136,7 @@ def delete_vsdobjects_in_tenant(tenant_name):
                 if vport["type"] == "BRIDGE":
                     logger.info("VSD - Deleting bridgeport")
                     try:
-                        nc.delete(
-                            "bridgeinterfaces/%s" % (nc.get("vports/%s/bridgeinterfaces" % vport["ID"]).obj()[0]["ID"]))
+                        nc.delete("bridgeinterfaces/%s" % (nc.get("vports/%s/bridgeinterfaces" % vport["ID"]).obj()[0]["ID"]))
                     except Exception, e:
                         logger.info("VSD - no Bridgeinterface found")
                         logger.error(repr(e))
@@ -143,7 +149,7 @@ def delete_vsdobjects_in_tenant(tenant_name):
                     except Exception, e:
                         logger.info("VSD - no host interface found")
                         logger.error(repr(e))
-                sleep(2)
+                time.sleep(2)
                 alarms = nc.get("vports/%s/alarms" % vport["ID"]).obj()
                 for alarm in alarms:
                     try:
@@ -189,25 +195,21 @@ def create_vsd_managed_tenant(tenant_name):
         logger.error("|- ERROR finding user %s in keystone" % cfg.get('openstack', 'admin_username'))
         logger.error(repr(e))
     try:
-        logger.info("Adding admin role for user %s in tenant %s in keystone" % (
-            cfg.get('openstack', 'admin_username'), tenant_name))
+        logger.info("Adding admin role for user %s in tenant %s in keystone" % (cfg.get('openstack', 'admin_username'), tenant_name))
         keystone.roles.add_user_role(os_admin, admin_role, os_tenant)
     except Exception, e:
-        logger.error("|- ERROR adding admin role for user %s in tenant %s in keystone" % (
-            cfg.get('openstack', 'admin_username'), tenant_name))
+        logger.error("|- ERROR adding admin role for user %s in tenant %s in keystone" % (cfg.get('openstack', 'admin_username'), tenant_name))
         logger.error(repr(e))
-    neutron_creds = get_neutron_creds(cfg.get('openstack', 'admin_username'), cfg.get('openstack', 'admin_password'),
-                                      "admin")
+    neutron_creds = get_neutron_creds(cfg.get('openstack', 'admin_username'), cfg.get('openstack', 'admin_password'), "admin")
     neutron = neutronclient.Client(**neutron_creds)
     try:
         logger.info("Creating Net-Partition: %s" % tenant_name)
-        body_netpart = {
-            "net_partition":
-                {
-                    "name": tenant_name
-                }
-        }
-        neutron.create_net_partition(body=body_netpart)
+        body_netpart = {"net_partition":
+                        {
+                            "name": tenant_name,
+                        }
+                        }
+        netpart = neutron.create_net_partition(body=body_netpart)
     except Exception, e:
         logger.error("|- ERROR creating netpartition: %s" % tenant_name)
         logger.error(repr(e))
@@ -240,8 +242,7 @@ def delete_vsd_managed_tenant(tenant_name, force):
             return 1
     else:
         logger.info("Keystone tenant %s not present" % tenant_name)
-    neutron_creds = get_neutron_creds(cfg.get('openstack', 'admin_username'), cfg.get('openstack', 'admin_password'),
-                                      "admin")
+    neutron_creds = get_neutron_creds(cfg.get('openstack', 'admin_username'), cfg.get('openstack', 'admin_password'), "admin")
     neutron = neutronclient.Client(**neutron_creds)
     try:
         logger.info("Deleting Net-Partition: %s" % tenant_name)
@@ -254,26 +255,3 @@ def delete_vsd_managed_tenant(tenant_name, force):
         logger.error("|- ERROR deleting netpartition: %s" % tenant_name)
         logger.error(repr(e))
     logger.info("Finished Deleting VSD Managed Tenant: %s" % tenant_name)
-
-
-def list_vsd_managed_tenants():
-    """Retrieves a list of the managed tenants in VSD"""
-    # TODO: Improve list speed, nc.get("enterprises") is quite slow.
-    nc = NuageConnection(cfg.get('vsd', 'hostname'), enterprise=cfg.get('vsd', 'enterprise'),
-                         username=cfg.get('vsd', 'username'), password=cfg.get('vsd', 'password'), version="v3_0",
-                         port=cfg.get('vsd', 'port'))
-    cr = get_keystone_creds()
-    ks = ksclient.Client(**cr)
-    try:
-        tenants = ks.tenants.list()
-    except:
-        return "Could not connect to keystone."
-    try:
-        template = "{ID:40} | {name:20} | {description:30}"
-        print template.format(ID="TENANT ID", name="TENANT NAME", description="TENANT DESCRIPTION")
-        for ksi in tenants:
-            for ent in nc.get("enterprises").obj():
-                if ksi.name == ent["name"]:
-                    print template.format(**ent)
-    except:
-        logger.error("Unable to get list of enterprises.")

@@ -1,11 +1,13 @@
 #!/usr/bin/python
+# @ageuthor: Philippe Jeurissen
+# @copyright: Alcatel-Lucent 2014
+# @version: 0.0.2
 """
 Usage:
   nuage-amp sync [--once] [options]
   nuage-amp audit-vports [options]
   nuage-amp network-macro-from-url (create|delete) <url> <enterprise> [options]
   nuage-amp vsdmanaged-tenant (create|delete) <name> [--force] [options]
-  nuage-amp vsdmanaged-tenant list
   nuage-amp (-h | --help)
 
 Options:
@@ -19,22 +21,16 @@ Tenant Operations:
   --force                Forces tenant deletion. Will remove existing VMs and VSD objects(domains,subnets)
 
 """
-
-"""
-@author: Philippe Jeurissen
-@copyright: Alcatel-Lucent 2014
-@version: 0.0.2
-"""
-
 from utils.config import cfg, readconfig
 from utils.log import logger, setlogpath, setloglevel
+from operations import *
 from docopt import docopt
 import time
 import sys
 
 
 def getargs():
-    return docopt(__doc__, version="nuage-amp 0.1.2")
+    return docopt(__doc__, version="nuage-amp 0.1.1")
 
 
 def main(args):
@@ -67,6 +63,7 @@ def main(args):
             while True:
                 sync.sync_subnets()
                 time.sleep(10)
+
     elif args['audit-vports']:
         audit_vport.audit_vports()
 
@@ -80,8 +77,6 @@ def main(args):
             tenant.create_vsd_managed_tenant(args['<name>'])
         elif args['delete']:
             tenant.delete_vsd_managed_tenant(args['<name>'], args['--force'])
-        elif args['list']:
-            tenant.list_vsd_managed_tenants()
 
 
 if __name__ == "__main__":

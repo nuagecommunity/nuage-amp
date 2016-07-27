@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-"""
-@author: Philippe Jeurissen
-@copyright: Alcatel-Lucent 2014
-@version: 0.0.1
-"""
+# Created on 2014-11-10
+#
+# @author: Philippe Jeurissen
+# @copyright: Alcatel-Lucent 2014
+# @version: 0.0.1
 
 from nuage_amp.utils.log import logger
 from nuage_amp.utils.nuage import NuageConnection, NuageHTTPError, NuageResponse

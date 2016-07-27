@@ -43,7 +43,7 @@ class NuageResponse(object):
         """
 
         status, reason, body = http_response.status, http_response.reason, http_response.read()
-        if not (200 < status < 300):
+        if 200 < status >= 300:
             raise NuageHTTPError(status, reason, body)
         self.count = http_response.getheader('X-Nuage-Count', None)
         self.page = http_response.getheader('X-Nuage-Page', None)

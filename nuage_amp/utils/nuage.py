@@ -1,6 +1,4 @@
 """
-Created on Jun 17, 2013
-
 @author: Carl Verge
 @copyright: Alcatel-Lucent 2013
 @version: 1.0R1
@@ -92,7 +90,8 @@ class NuageResponse(object):
         if name:
             for dct in self.obj_repr:
                 try:
-                    if dct["name"] == name: return dct["ID"]
+                    if dct["name"] == name:
+                        return dct["ID"]
                 except KeyError:
                     continue
             raise KeyError("No object with name %s" % name)
@@ -135,11 +134,16 @@ class NuageConnection(object):
         @raise NuageHTTPException: If there is an error in processing the request.
         """
         headers = {}
-        if filtertype: headers['X-Nuage-FilterType'] = filtertype
-        if filtertext: headers['X-Nuage-Filter'] = filtertext
-        if page: headers['X-Nuage-Page'] = page
-        if orderby: headers['X-Nuage-OrderBy'] = orderby
-        if user: headers['X-Nuage-ProxyUser'] = user
+        if filtertype:
+            headers['X-Nuage-FilterType'] = filtertype
+        if filtertext:
+            headers['X-Nuage-Filter'] = filtertext
+        if page:
+            headers['X-Nuage-Page'] = page
+        if orderby:
+            headers['X-Nuage-OrderBy'] = orderby
+        if user:
+            headers['X-Nuage-ProxyUser'] = user
 
         return self._do_http_request("GET", url, headers=headers)
 
@@ -172,7 +176,8 @@ class NuageConnection(object):
         @raise NuageHTTPException: If there is an error in processing the request.
         """
         headers = {}
-        if user: headers['X-Nuage-ProxyUser'] = user
+        if user:
+            headers['X-Nuage-ProxyUser'] = user
         # Convert it to a JSON string if required.
         if type(body) != str:
             body = dumps(body)
@@ -189,7 +194,8 @@ class NuageConnection(object):
         @raise NuageHTTPException: If there is an error in processing the request.
         """
         headers = {}
-        if user: headers['X-Nuage-ProxyUser'] = user
+        if user:
+            headers['X-Nuage-ProxyUser'] = user
 
         return self._do_http_request("DELETE", url, headers=headers)
 
@@ -222,8 +228,10 @@ class NuageConnection(object):
     def _default_event_callback(nuage_response, *args, **kwargs):
         print "Received Push Event:"
         print "Called with args:"
-        for arg in args: print arg
-        for kw in kwargs: print kw
+        for arg in args:
+            print arg
+        for kw in kwargs:
+            print kw
 
         print nuage_response
 
@@ -236,7 +244,8 @@ class NuageConnection(object):
         if self._settings["debuglevel"] != 0:
             conn.set_debuglevel(self._settings["debuglevel"])
         request_headers = self._get_headers()
-        if headers: request_headers.update(headers)
+        if headers:
+            request_headers.update(headers)
         conn.request(method, "%s/%s/%s" % (self.NUAGE_URLBASE, self._settings["version"], url), body=body,
                      headers=request_headers)
         response = conn.getresponse()

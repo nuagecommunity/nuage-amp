@@ -23,9 +23,9 @@ class NuageHTTPError(Exception):
 
     def __str__(self):
         if self.body:
-            return "{0:d} {1:s}\n{2:s}".format(self.status, self.reason, self.body)
+            return "{0} {1}\n{2}".format(self.status, self.reason, self.body)
         else:
-            return "{0:d} {1:s}".format(self.status, self.reason)
+            return "{0} {1}".format(self.status, self.reason)
 
     def __repr__(self):
         return str(self)
@@ -94,7 +94,7 @@ class NuageResponse(object):
                         return dct["ID"]
                 except KeyError:
                     continue
-            raise KeyError("No object with name {0:s}".format(name))
+            raise KeyError("No object with name {0}".format(name))
         else:
             try:
                 return self.obj_repr[0]["ID"]
@@ -220,7 +220,7 @@ class NuageConnection(object):
         if not callback:
             callback = NuageConnection._default_event_callback
         while True:
-            resp = self.get("events?uuid={0:s}".format(last_uuid))
+            resp = self.get("events?uuid={0}".format(last_uuid))
             last_uuid = resp.obj()["uuid"]
             callback(resp, *args, **kwargs)
 
@@ -247,7 +247,7 @@ class NuageConnection(object):
         request_headers = self._get_headers()
         if headers:
             request_headers.update(headers)
-        conn.request(method, "{0:s}/{1:s}/{2:s}".format(self.NUAGE_URLBASE, self._settings["version"], url), body=body,
+        conn.request(method, "{0}/{1}/{2}".format(self.NUAGE_URLBASE, self._settings["version"], url), body=body,
                      headers=request_headers)
         response = conn.getresponse()
         result = NuageResponse(response)
@@ -260,10 +260,10 @@ class NuageConnection(object):
         Authenticate with the password and get the API key.
         """
         self._settings["auth_string"] = "Basic {0}".format(urlsafe_b64encode(
-            "{0:s}:{1:s}".format(self._settings["username"], self._settings["password"])))
+            "{0}:{1}".format(self._settings["username"], self._settings["password"])))
         self.me = self.get("me").obj()[0]
         self._settings["auth_string"] = "Basic {0}".format(urlsafe_b64encode(
-            "{0:s}:{1:s}".format(self._settings["username"], self.me["APIKey"])))
+            "{0}:{1}".format(self._settings["username"], self.me["APIKey"])))
 
     def _get_https_conn(self):
         return HTTPSConnection(self._settings["hostname"], self._settings["port"])

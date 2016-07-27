@@ -42,7 +42,7 @@ def main(args):
     try:
         readconfig(args['--config-file'])
     except Exception, e:
-        logger.error("Error reading config file from location: {0:s}".format(args['--config-file']))
+        logger.error("Error reading config file from location: {0}".format(args['--config-file']))
         logger.error(str(e))
         sys.exit(1)
 
@@ -50,7 +50,7 @@ def main(args):
         try:
             setlogpath(args['--log-file'], logconfig=cfg)
         except Exception, e:
-            logger.error("Error setting log location: {0:s}".format(args['--log-file']))
+            logger.error("Error setting log location: {0}".format(args['--log-file']))
             logger.error(str(e))
             sys.exit(1)
 
@@ -58,7 +58,7 @@ def main(args):
         try:
             setloglevel(cfg.get('logging', 'loglevel'))
         except Exception, e:
-            logger.error("Error setting logging level to {0:s}".format(cfg.get('logging', 'loglevel')))
+            logger.error("Error setting logging level to {0}".format(cfg.get('logging', 'loglevel')))
             logger.error(str(e))
 
     if args['sync']:

@@ -23,9 +23,9 @@ class NuageHTTPError(Exception):
 
     def __str__(self):
         if self.body:
-            return "%d %s\n%s" % (self.status, self.reason, self.body)
+            return "{0} {1}\n{2}".format(self.status, self.reason, self.body)
         else:
-            return "%d %s" % (self.status, self.reason)
+            return "{0} {1}".format(self.status, self.reason)
 
     def __repr__(self):
         return str(self)
@@ -43,7 +43,7 @@ class NuageResponse(object):
         """
 
         status, reason, body = http_response.status, http_response.reason, http_response.read()
-        if status < 200 or status >= 300:
+        if 200 < status >= 300:
             raise NuageHTTPError(status, reason, body)
         self.count = http_response.getheader('X-Nuage-Count', None)
         self.page = http_response.getheader('X-Nuage-Page', None)
@@ -94,7 +94,7 @@ class NuageResponse(object):
                         return dct["ID"]
                 except KeyError:
                     continue
-            raise KeyError("No object with name %s" % name)
+            raise KeyError("No object with name {0}".format(name))
         else:
             try:
                 return self.obj_repr[0]["ID"]
@@ -220,7 +220,7 @@ class NuageConnection(object):
         if not callback:
             callback = NuageConnection._default_event_callback
         while True:
-            resp = self.get("events?uuid=%s" % last_uuid)
+            resp = self.get("events?uuid={0}".format(last_uuid))
             last_uuid = resp.obj()["uuid"]
             callback(resp, *args, **kwargs)
 
@@ -247,7 +247,7 @@ class NuageConnection(object):
         request_headers = self._get_headers()
         if headers:
             request_headers.update(headers)
-        conn.request(method, "%s/%s/%s" % (self.NUAGE_URLBASE, self._settings["version"], url), body=body,
+        conn.request(method, "{0}/{1}/{2}".format(self.NUAGE_URLBASE, self._settings["version"], url), body=body,
                      headers=request_headers)
         response = conn.getresponse()
         result = NuageResponse(response)
@@ -259,11 +259,11 @@ class NuageConnection(object):
         """
         Authenticate with the password and get the API key.
         """
-        self._settings["auth_string"] = "Basic %s" % urlsafe_b64encode(
-            "%s:%s" % (self._settings["username"], self._settings["password"]))
+        self._settings["auth_string"] = "Basic {0}".format(urlsafe_b64encode(
+            "{0}:{1}".format(self._settings["username"], self._settings["password"])))
         self.me = self.get("me").obj()[0]
-        self._settings["auth_string"] = "Basic %s" % urlsafe_b64encode(
-            "%s:%s" % (self._settings["username"], self.me["APIKey"]))
+        self._settings["auth_string"] = "Basic {0}".format(urlsafe_b64encode(
+            "{0}:{1}".format(self._settings["username"], self.me["APIKey"])))
 
     def _get_https_conn(self):
         return HTTPSConnection(self._settings["hostname"], self._settings["port"])

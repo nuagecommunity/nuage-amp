@@ -12,8 +12,8 @@ from log import logger
 
 def readconfig(path):
     if not os.path.isfile(path):
-        raise ValueError('Invalid config file: %s' % path)
-    logger.info("Reading config file from %s" % path)
+        raise ValueError('Invalid config file: {0}'.format(path))
+    logger.info("Reading config file from {0}".format(path))
     cfg.read(path)
 
 cfg = ConfigParser.ConfigParser()

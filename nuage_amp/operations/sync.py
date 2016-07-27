@@ -413,8 +413,8 @@ def sync_subnets():
         for mapping in subnet_mappings:
             if is_excluded_netpartition_id(mapping['net_partition_id']):
                 logger.debug(
-                    "|- Ignoring subnet: (ID:{0:s}) because it is in the default net partition or is in the list of excluded tenants"
-                        .format(mapping['subnet_id']))
+                    "|- Ignoring subnet: (ID:{0:s}) because it is in the default net partition or is in the list of excluded tenants".format(
+                        mapping['subnet_id']))
                 continue
             try:
                 os_subnet = neutron.list_subnets(id=mapping['subnet_id'])['subnets'][0]

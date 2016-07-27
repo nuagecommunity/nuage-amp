@@ -158,7 +158,8 @@ class NuageConnection(object):
         @raise NuageHTTPException: If there is an error in processing the request.
         """
         headers = {}
-        if user: headers['X-Nuage-ProxyUser'] = user
+        if user:
+            headers['X-Nuage-ProxyUser'] = user
         # Convert it to a JSON string if required.
         if type(body) != str:
             body = dumps(body)

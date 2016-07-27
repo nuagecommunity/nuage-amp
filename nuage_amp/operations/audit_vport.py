@@ -20,11 +20,11 @@ def audit_vports():
     try:
         dead_vms = nc.get("vms", filtertext="hypervisorIP == \"FFFFFF\"").obj()
         for vm in dead_vms:
-            logger.info("Deleting orphaned VM with ID: %s" % vm['ID'])
+            logger.info("Deleting orphaned VM with ID: {0:s}".format(vm['ID']))
             try:
-                nc.delete("vms/%s" % vm['ID'])
+                nc.delete("vms/{0:s}".format(vm['ID']))
             except:
-                logger.error("Error deleting orphaned VM with ID: %s" % vm['ID'])
+                logger.error("Error deleting orphaned VM with ID: {0:s}".format(vm['ID']))
     except:
         logger.error("Error getting orphaned VMs")
 

@@ -1,7 +1,9 @@
 #!/usr/bin/env python
-# @author: Philippe Jeurissen
-# @copyright: Alcatel-Lucent 2014
-# @version: 0.0.1
+"""
+@author: Philippe Jeurissen
+@copyright: Alcatel-Lucent 2014
+@version: 0.0.1
+"""
 
 import ConfigParser
 import os

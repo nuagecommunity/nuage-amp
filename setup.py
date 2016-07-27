@@ -8,7 +8,7 @@ except ImportError:
 
 setup(
     name='nuage_amp',
-    version='0.1.1',
+    version='0.1.2',
     packages=['nuage_amp', 'nuage_amp.utils', 'nuage_amp.operations'],
     data_files=[('/etc/nuage-amp', ['config/nuage-amp.conf']),
                 ('/usr/bin', ['config/nuage-amp']),

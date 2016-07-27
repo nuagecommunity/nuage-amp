@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-# Created on 2014-11-10
-#
-# @author: Philippe Jeurissen
-# @copyright: Alcatel-Lucent 2014
-# @version: 0.0.1
+"""
+@author: Philippe Jeurissen
+@copyright: Alcatel-Lucent 2014
+@version: 0.0.1
+"""
 
 from nuage_amp.utils.nuage import NuageConnection, NuageHTTPError, NuageResponse
 from nuage_amp.utils.log import logger
@@ -53,7 +53,7 @@ def create(url, enterprise_name):
     else:
         if not macro[0]['address'] == ip:
             logger.info("Network Macro for %s does exists, but address is not correct.(current:%s | new:%s)" % (
-            url, macro[0]['address'], ip))
+                url, macro[0]['address'], ip))
             try:
                 nc.put("enterprisenetworks/%s" % macro[0]['ID'],
                        {"address": ip,

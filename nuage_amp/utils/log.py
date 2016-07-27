@@ -1,7 +1,9 @@
 #!/usr/bin/env python
-# @author: Philippe Jeurissen
-# @copyright: Alcatel-Lucent 2014
-# @version: 0.0.1
+"""
+@author: Philippe Jeurissen
+@copyright: Alcatel-Lucent 2014
+@version: 0.0.1
+"""
 
 import logging
 import logging.handlers
@@ -39,7 +41,6 @@ def setlogpath(path, logconfig=None):
 
     formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(name)s:%(message)s")
     fileh.setFormatter(formatter)
-    log = logging.getLogger()
     for hdlr in logger.handlers:
         logger.removeHandler(hdlr)
     logger.addHandler(fileh)

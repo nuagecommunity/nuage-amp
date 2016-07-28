@@ -228,7 +228,7 @@ def get_current_subnet_mappings():
         if cfg.get('openstack', 'version').lower() == "icehouse":
             cur.execute("SELECT * FROM subnet_l2dom_mapping")
         else:
-            # juno and liberty
+            # juno, kilo and liberty
             cur.execute("SELECT * FROM nuage_subnet_l2dom_mapping")
     rows = cur.fetchall()
     return rows
@@ -294,8 +294,7 @@ def cleanup_os_networks():
         logger.error(repr(e))
         return 1
     for nw in networks:
-        # TODO: vsd_subnet_exists() is called with only 1 parameter, fix!
-        if not is_excluded_keystone_tenant_id(nw['tenant_id']) and not nw['subnets'] and not vsd_subnet_exists(nw):
+        if not is_excluded_keystone_tenant_id(nw['tenant_id']) and not nw['subnets']:
             try:
                 logger.info("Found Network(ID: {0}) without attached subnet, deleting".format(nw['id']))
                 neutron.delete_network(nw['id'])

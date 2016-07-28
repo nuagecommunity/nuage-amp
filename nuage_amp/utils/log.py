@@ -1,7 +1,9 @@
 #!/usr/bin/env python
-# @author: Philippe Jeurissen
-# @copyright: Alcatel-Lucent 2014
-# @version: 0.0.1
+"""
+@author: Philippe Jeurissen
+@copyright: Alcatel-Lucent 2014
+@version: 0.0.1
+"""
 
 import logging
 import logging.handlers
@@ -39,7 +41,6 @@ def setlogpath(path, logconfig=None):
 
     formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(name)s:%(message)s")
     fileh.setFormatter(formatter)
-    log = logging.getLogger()
     for hdlr in logger.handlers:
         logger.removeHandler(hdlr)
     logger.addHandler(fileh)
@@ -49,8 +50,8 @@ def setlogpath(path, logconfig=None):
 def setloglevel(log_level):
     parsed_log_level = LEVELS.get(log_level.lower(), logging.NOTSET)
     if not parsed_log_level:
-        raise ValueError('Invalid log level: %s' % log_level)
-    logger.info("Changing logging level to %s" % parsed_log_level)
+        raise ValueError('Invalid log level: {0}'.format(log_level))
+    logger.info("Changing logging level to {0}".format(parsed_log_level))
     logger.setLevel(parsed_log_level)
 
 logging.basicConfig(stream=sys.stderr, level=logging.ERROR)

@@ -4,7 +4,6 @@
 """
 @author: Philippe Jeurissen
 @copyright: Alcatel-Lucent 2015
-@version: 0.0.6
 """
 
 from nuage_amp.utils.nuage import NuageConnection, NuageHTTPError, NuageResponse

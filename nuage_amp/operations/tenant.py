@@ -4,7 +4,6 @@
 """
 @author: Philippe Jeurissen
 @copyright: Alcatel-Lucent 2015
-@version: 0.0.1
 """
 
 from time import sleep

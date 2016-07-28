@@ -23,7 +23,6 @@ Tenant Operations:
 """
 @author: Philippe Jeurissen
 @copyright: Alcatel-Lucent 2014
-@version: 0.0.2
 """
 
 from utils.config import cfg, readconfig

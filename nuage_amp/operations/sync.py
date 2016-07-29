@@ -304,18 +304,18 @@ def cleanup_os_networks():
                 return 1
 
 
-def vsd_subnet_exists(os_nw, mapping):
+def vsd_subnet_exists(os_subnet, mapping):
     nc = NuageConnection(cfg.get('vsd', 'hostname'), enterprise=cfg.get('vsd', 'enterprise'),
                          username=cfg.get('vsd', 'username'), password=cfg.get('vsd', 'password'),
                          version=cfg.get('vsd', 'version'), port=cfg.get('vsd', 'port'))
-    logger.debug("Checking if Openstack network({0},{1}) exists in the VSD".format(os_nw['id'], os_nw['name']))
+    logger.debug("Checking if Openstack network({0},{1}) exists in the VSD".format(os_subnet['id'], os_subnet['name']))
     try:
         vsd_subnet = nc.get("subnets/{0}".format(mapping["nuage_subnet_id"])).obj()[0]
     except Exception, e:
         try:
             vsd_subnet = nc.get("l2domains/{0}".format(mapping["nuage_subnet_id"])).obj()[0]
         except Exception, e:
-            logger.info("|- Subnet ({0} - ID:{1}) not found in VSD --> Removing".format(os_nw['name'], os_nw['id']))
+            logger.info("|- Subnet ({0} - ID:{1}) not found in VSD --> Removing".format(os_subnet['name'], os_subnet['id']))
             vsd_subnet = []
     return vsd_subnet
 

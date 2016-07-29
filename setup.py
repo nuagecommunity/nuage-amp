@@ -13,7 +13,7 @@ setup(
     data_files=[('/etc/nuage-amp', ['config/nuage-amp.conf']),
                 ('/usr/bin', ['config/nuage-amp']),
                 ('/etc/init.d', ['config/nuage-amp-sync'])],
-    url='http://gitserver.labs.ca.alcatel-lucent.com/pjeuriss/nuageamp',
+    url='https://github.com/nuagecommunity/nuage-amp',
     license='Apache V2.0',
     author='Philippe Jeurissen',
     author_email='philippe@nuagenetworks.com',

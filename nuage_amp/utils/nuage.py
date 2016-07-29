@@ -1,7 +1,6 @@
 """
 @author: Carl Verge
 @copyright: Alcatel-Lucent 2013
-@version: 1.0R1
 """
 
 from httplib import HTTPSConnection

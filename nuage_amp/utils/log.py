@@ -2,7 +2,6 @@
 """
 @author: Philippe Jeurissen
 @copyright: Alcatel-Lucent 2014
-@version: 0.0.1
 """
 
 import logging

@@ -4,7 +4,6 @@
 """
 @author: Philippe Jeurissen
 @copyright: Alcatel-Lucent 2015
-@version: 0.0.6
 """
 
 from nuage_amp.utils.nuage import NuageConnection, NuageHTTPError, NuageResponse
@@ -229,7 +228,7 @@ def get_current_subnet_mappings():
         if cfg.get('openstack', 'version').lower() == "icehouse":
             cur.execute("SELECT * FROM subnet_l2dom_mapping")
         else:
-            # juno and liberty
+            # juno, kilo and liberty
             cur.execute("SELECT * FROM nuage_subnet_l2dom_mapping")
     rows = cur.fetchall()
     return rows
@@ -295,8 +294,7 @@ def cleanup_os_networks():
         logger.error(repr(e))
         return 1
     for nw in networks:
-        # TODO: vsd_subnet_exists() is called with only 1 parameter, fix!
-        if not is_excluded_keystone_tenant_id(nw['tenant_id']) and not nw['subnets'] and not vsd_subnet_exists(nw):
+        if not is_excluded_keystone_tenant_id(nw['tenant_id']) and not nw['subnets']:
             try:
                 logger.info("Found Network(ID: {0}) without attached subnet, deleting".format(nw['id']))
                 neutron.delete_network(nw['id'])
@@ -306,18 +304,18 @@ def cleanup_os_networks():
                 return 1
 
 
-def vsd_subnet_exists(os_nw, mapping):
+def vsd_subnet_exists(os_subnet, mapping):
     nc = NuageConnection(cfg.get('vsd', 'hostname'), enterprise=cfg.get('vsd', 'enterprise'),
                          username=cfg.get('vsd', 'username'), password=cfg.get('vsd', 'password'),
                          version=cfg.get('vsd', 'version'), port=cfg.get('vsd', 'port'))
-    logger.debug("Checking if Openstack network({0},{1}) exists in the VSD".format(os_nw['id'], os_nw['name']))
+    logger.debug("Checking if Openstack network({0},{1}) exists in the VSD".format(os_subnet['id'], os_subnet['name']))
     try:
         vsd_subnet = nc.get("subnets/{0}".format(mapping["nuage_subnet_id"])).obj()[0]
     except Exception, e:
         try:
             vsd_subnet = nc.get("l2domains/{0}".format(mapping["nuage_subnet_id"])).obj()[0]
         except Exception, e:
-            logger.info("|- Subnet ({0} - ID:{1}) not found in VSD --> Removing".format(os_nw['name'], os_nw['id']))
+            logger.info("|- Subnet ({0} - ID:{1}) not found in VSD --> Removing".format(os_subnet['name'], os_subnet['id']))
             vsd_subnet = []
     return vsd_subnet
 

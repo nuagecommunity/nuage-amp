@@ -138,64 +138,108 @@ def neutron_add_subnet(nc, vsd_subnet, tenant):
             logger.error("|- ERROR creating network: (ID:{0})".format(vsd_subnet['ID']))
             logger.error(repr(e))
             return None
-    if vsd_subnet['parentType'] == "enterprise" and not vsd_subnet['DHCPManaged']:
-        body_subnet = {
-            "subnets": [
-                {
-                    "name": calcL2SubnetName(nc, vsd_subnet),
-                    "cidr": "9.0.0.0/8",
-                    "ip_version": 4,
-                    "gateway_ip": "9.9.9.1",
-                    "network_id": netw['network']['id'],
-                    "nuagenet": vsd_subnet['ID'],
-                    "net_partition": tenant.name,
-                    "enable_dhcp": False
+    if vsd_subnet['parentType'] == "enterprise":
+        # L2 subnet
+        if vsd_subnet['DHCPManaged']:
+            # private L2 with DHCP
+            body_subnet = {
+                "subnets": [
+                    {
+                        "name": calcL2SubnetName(nc, vsd_subnet),
+                        "cidr": "{0}".format(net_nm_sanitizer(vsd_subnet['address'], vsd_subnet['netmask'])),
+                        "ip_version": 4,
+                        "network_id": netw['network']['id'],
+                        "nuagenet": vsd_subnet['ID'],
+                        "net_partition": tenant.name
+                    }
+                ]
+            }
+        elif vsd_subnet['associatedSharedNetworkResourceID'] is None:
+            # private L2 without dhcp
+            body_subnet = {
+                "subnets": [
+                    {
+                        "name": calcL2SubnetName(nc, vsd_subnet),
+                        "cidr": "9.0.0.0/8",
+                        "ip_version": 4,
+                        "network_id": netw['network']['id'],
+                        "nuagenet": vsd_subnet['ID'],
+                        "net_partition": tenant.name,
+                        "enable_dhcp": False
+                    }
+                ]
+            }
+        else:
+            # shared L2 subnet
+            resource = get_sharednwresource_by_id(nc, vsd_subnet['associatedSharedNetworkResourceID'])
+            
+            if resource['DHCPManaged']:
+                # shared L2 with dhcp
+                address = resource['address']
+                netmask = resource['netmask']
+                body_subnet = {
+                    "subnets": [
+                        {
+                            "name": calcL2SubnetName(nc, vsd_subnet),
+                            "cidr": "{0}".format(net_nm_sanitizer(address, netmask)),
+                            "ip_version": 4,
+                            "network_id": netw['network']['id'],
+                            "nuagenet": vsd_subnet['ID'],
+                            "net_partition": tenant.name
+                        }
+                    ]
                 }
-            ]
-        }
-    elif vsd_subnet['associatedSharedNetworkResourceID'] is not None:
-        body_subnet = {
-            "subnets": [
-                {
-                    "name": calcL3SubnetName(nc, vsd_subnet),
-                    "cidr": "9.0.0.0/8",
-                    "ip_version": 4,
-                    "gateway_ip": "9.9.9.1",
-                    "network_id": netw['network']['id'],
-                    "nuagenet": vsd_subnet['ID'],
-                    "net_partition": tenant.name,
-                    "enable_dhcp": False
+            else:
+                # shared L2 without dhcp
+                body_subnet = {
+                    "subnets": [
+                        {
+                            "name": calcL2SubnetName(nc, vsd_subnet),
+                            "cidr": "9.0.0.0/8",
+                            "ip_version": 4,
+                            "network_id": netw['network']['id'],
+                            "nuagenet": vsd_subnet['ID'],
+                            "net_partition": tenant.name,
+                            "enable_dhcp": False
+                        }
+                    ]
                 }
-            ]
-        }
-    elif vsd_subnet['parentType'] == "enterprise" and vsd_subnet['DHCPManaged']:
-        body_subnet = {
-            "subnets": [
-                {
-                    "name": calcL2SubnetName(nc, vsd_subnet),
-                    "cidr": "{0}".format(net_nm_sanitizer(vsd_subnet['address'], vsd_subnet['netmask'])),
-                    "ip_version": 4,
-                    "gateway_ip": vsd_subnet['gateway'],
-                    "network_id": netw['network']['id'],
-                    "nuagenet": vsd_subnet['ID'],
-                    "net_partition": tenant.name
-                }
-            ]
-        }
     else:
-        body_subnet = {
-            "subnets": [
-                {
-                    "name": calcL3SubnetName(nc, vsd_subnet),
-                    "cidr": "{0}".format(net_nm_sanitizer(vsd_subnet['address'], vsd_subnet['netmask'])),
-                    "ip_version": 4,
-                    "gateway_ip": vsd_subnet['gateway'],
-                    "network_id": netw['network']['id'],
-                    "nuagenet": vsd_subnet['ID'],
-                    "net_partition": tenant.name
-                }
-            ]
-        }
+        # L3 subnet
+        if vsd_subnet['associatedSharedNetworkResourceID'] is not None:
+            # shared L3 subnet (with dhcp)
+            resource = get_sharednwresource_by_id(nc, vsd_subnet['associatedSharedNetworkResourceID'])
+            address = resource['address']
+            gateway = resource['gateway']
+            netmask = resource['netmask']
+            body_subnet = {
+                "subnets": [
+                    {
+                        "name": calcL3SubnetName(nc, vsd_subnet),
+                        "cidr": "{0}".format(net_nm_sanitizer(address, netmask)),
+                        "ip_version": 4,
+                        "gateway_ip": gateway,
+                        "network_id": netw['network']['id'],
+                        "nuagenet": vsd_subnet['ID'],
+                        "net_partition": tenant.name
+                    }
+                ]
+            }
+        else:
+            # private L3 with DHCP
+            body_subnet = {
+                "subnets": [
+                    {
+                        "name": calcL3SubnetName(nc, vsd_subnet),
+                        "cidr": "{0}".format(net_nm_sanitizer(vsd_subnet['address'], vsd_subnet['netmask'])),
+                        "ip_version": 4,
+                        "gateway_ip": vsd_subnet['gateway'],
+                        "network_id": netw['network']['id'],
+                        "nuagenet": vsd_subnet['ID'],
+                        "net_partition": tenant.name
+                    }
+                ]
+            }
     try:
         sub = neutron.create_subnet(body=body_subnet)
     except Exception, e:

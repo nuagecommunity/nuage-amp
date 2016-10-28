@@ -172,7 +172,7 @@ def neutron_add_subnet(nc, vsd_subnet, tenant):
         else:
             # shared L2 subnet
             resource = get_sharednwresource_by_id(nc, vsd_subnet['associatedSharedNetworkResourceID'])
-            
+
             if resource['DHCPManaged']:
                 # shared L2 with dhcp
                 address = resource['address']

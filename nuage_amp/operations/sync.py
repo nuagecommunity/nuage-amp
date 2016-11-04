@@ -108,12 +108,27 @@ def neutron_add_subnet(nc, vsd_subnet, tenant):
     neutron_creds = get_neutron_creds(cfg.get('openstack', 'admin_username'), cfg.get('openstack', 'admin_password'),
                                       tenant.name)
     neutron = neutronclient.Client(**neutron_creds)
+    # Ignore Shared L3 if not linked to shared subnet
     if not vsd_subnet['parentType'] == "enterprise" and vsd_subnet['address'] is None and vsd_subnet[
             'associatedSharedNetworkResourceID'] is None:
-        logger.debug(
-            "|- Ignoring subnet: (ID:{0}). This is a public subnet without a pool assignment yet.".format(
+        if cfg.getboolean('sync', 'sync_shared_subnets'):
+            logger.info(
+                "|- Ignoring subnet: (ID:{0}). This is a public subnet without a pool assignment yet.".format(
+                    vsd_subnet['ID']))
+        else:
+            logger.info(
+                "|- Ignoring subnet: (ID:{0}). Sync of shared subnets is disabled in configuration.".format(
+                    vsd_subnet['ID']))
+        return None
+
+    # Ignore if Shared L2/L3 subnet and syncing of shared subnets is disabled in the configuration
+    if vsd_subnet['associatedSharedNetworkResourceID'] is not None and not cfg.getboolean('sync', 'sync_shared_subnets'):
+        logger.info(
+            "|- Ignoring subnet: (ID:{0}). Sync of shared subnets is disabled in configuration.".format(
                 vsd_subnet['ID']))
         return None
+
+    # Check if network exists
     if vsd_subnet['parentType'] == "enterprise":
         net_name = calcL2SubnetName(nc, vsd_subnet)
     else:
@@ -138,6 +153,8 @@ def neutron_add_subnet(nc, vsd_subnet, tenant):
             logger.error("|- ERROR creating network: (ID:{0})".format(vsd_subnet['ID']))
             logger.error(repr(e))
             return None
+
+    # Add subnet
     if vsd_subnet['parentType'] == "enterprise":
         # L2 subnet
         if vsd_subnet['DHCPManaged']:
@@ -172,7 +189,6 @@ def neutron_add_subnet(nc, vsd_subnet, tenant):
         else:
             # shared L2 subnet
             resource = get_sharednwresource_by_id(nc, vsd_subnet['associatedSharedNetworkResourceID'])
-
             if resource['DHCPManaged']:
                 # shared L2 with dhcp
                 address = resource['address']

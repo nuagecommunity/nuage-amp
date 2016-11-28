@@ -154,6 +154,8 @@ neutron port-create <NETWORK> --fixed-ip ip_address=<IP_ADDR>
 
 Another way of preventing IP conflicts in shared subnets is the use of allocation pools. Because the number and size of the pools differs for each use case, this functionality has not been built in. 
 
+Note that Floating IP subnets will **not** be mapped.
+
 Step 7: Enable and start `nuage-amp-sync` through `systemctl`.
 
 ```

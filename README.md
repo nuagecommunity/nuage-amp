@@ -143,7 +143,18 @@ You can also specify a comma-separated list of tenants that should not be includ
 l2_name_format = $d
 l3_name_format = $d ($z) \ $s
 excluded_tenants= Openstack_Org
+sync_shared_subnets = False
 ```
+
+By default, nuage-amp will not synchronize Nuage (L2/L3) Shared Subnets. This can be enabled by setting sync_shared_subnets to True in which case a Nuage shared subnet will be mapped into every tenant. It's up to the end-user to avoid any IP conflicts. For example, if two tenants both use the same shared subnet and both create a VM in it, OpenStack could potentially pick the same IP address (not knowing they belong to the same Nuage subnet). To avoid conflicts, create a port with the fixed-ip option and attach it to the VM during creation.
+
+```
+neutron port-create <NETWORK> --fixed-ip ip_address=<IP_ADDR>
+```
+
+Another way of preventing IP conflicts in shared subnets is the use of allocation pools. Because the number and size of the pools differs for each use case, this functionality has not been built in. 
+
+Note that Floating IP subnets will **not** be mapped.
 
 Step 7: Enable and start `nuage-amp-sync` through `systemctl`.
 

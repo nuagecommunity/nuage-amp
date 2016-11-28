@@ -146,7 +146,7 @@ excluded_tenants= Openstack_Org
 sync_shared_subnets = False
 ```
 
-By default, nuage-amp will not synchronize Nuage (L2/L3) Shared Subnets. This can be enabled by setting sync_shared_subnets to True. However, it's up to the end-user to avoid any IP conflicts. For example, if two tenants both use the same shared subnet and both create a VM in it, OpenStack could potentially pick the same IP address (not knowing they belong to the same Nuage subnet). To avoid conflicts, create a port with the fixed-ip option and attach it to the VM during creation.
+By default, nuage-amp will not synchronize Nuage (L2/L3) Shared Subnets. This can be enabled by setting sync_shared_subnets to True in which case a Nuage shared subnet will be mapped into every tenant. It's up to the end-user to avoid any IP conflicts. For example, if two tenants both use the same shared subnet and both create a VM in it, OpenStack could potentially pick the same IP address (not knowing they belong to the same Nuage subnet). To avoid conflicts, create a port with the fixed-ip option and attach it to the VM during creation.
 
 ```
 neutron port-create <NETWORK> --fixed-ip ip_address=<IP_ADDR>

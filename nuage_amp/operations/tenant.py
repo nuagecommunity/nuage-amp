@@ -261,7 +261,7 @@ def list_vsd_managed_tenants():
     """Retrieves a list of the managed tenants in VSD"""
     # TODO: Improve list speed, nc.get("enterprises") is quite slow.
     nc = NuageConnection(cfg.get('vsd', 'hostname'), enterprise=cfg.get('vsd', 'enterprise'),
-                         username=cfg.get('vsd', 'username'), password=cfg.get('vsd', 'password'), version="v3_0",
+                         username=cfg.get('vsd', 'username'), password=cfg.get('vsd', 'password'), version=cfg.get('vsd', 'version'),
                          port=cfg.get('vsd', 'port'))
     cr = get_keystone_creds()
     ks = ksclient.Client(**cr)
